@@ -1,0 +1,54 @@
+# menggunakan Docker Compose versi 2 atau lebih
+version: "3.7"
+
+services:
+  
+  # service item-app
+  item-app:
+    
+    # menggunakan image item-app dari Docker Hub
+    image: hendrax76/item-app:v1
+    
+    # melakukan port mapping agar dapat diakses dari port 80 di host
+    ports:
+      - 80:8080
+
+    # pastikan item-app hanya berjalan setelah item-db diluncurkan
+    depends_on:
+      - item-db
+
+    # memakai network item-net
+    networks:
+      - item-net
+      
+    # container selalu restart ketika terhenti
+    restart: always
+
+
+  # service item-db
+  item-db:
+  
+    # menggunakan image mongo:3 dari Docker Hub
+    image: mongo:3
+    
+    # memakai volume bernama app-db dengan target /data/db di container
+    volumes:
+      - app-db:/data/db
+      
+    # memakai network item-net
+    networks:
+      - item-net
+      
+    # container selalu restart ketika terhenti
+    restart: always
+
+
+# membuat network item-net
+networks:
+  item-net:
+    driver: bridge
+
+    
+# memiliki satu buah volume bernama app-db
+volumes:
+  app-db:
