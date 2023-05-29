@@ -7,6 +7,7 @@ metadata:
 spec:
   ports:
   - port: 8080
+    nodePort: 30007
   selector:
     tier: backend
-
+  type: NodePort

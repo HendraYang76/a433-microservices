@@ -22,4 +22,4 @@ spec:
           - containerPort: 8000
         env:
           - name: VUE_APP_BACKEND
-            value: http://$(KARSAJOBS_API_SERVICE_HOST):$(KARSAJOBS_API_SERVICE_PORT)
+            value: http://192.168.49.2:30007
