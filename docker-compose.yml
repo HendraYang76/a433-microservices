@@ -1,0 +1,69 @@
+# menggunakan Docker Compose versi 3.4
+version: "3.4"
+
+services:
+
+  # service rabbitmq
+  rabbitmq:
+    # menggunakan image dari Docker Hub
+    image: rabbitmq:3.11-management
+    # memberikan nama container
+    container_name: 'rabbitmq_container'
+    # melakukan port mapping agar dapat diakses dari port 5673 dan 15673 di host
+    ports:
+        - 5673:5672
+        - 15673:15672
+    # memakai volume
+    volumes:
+        - rabbitmq_data/:/var/lib/rabbitmq/
+        - rabbitmq_log/:/var/log/rabbitmq/
+    # memakai network rabbitmq_network
+    networks:
+        - rabbitmq_network
+
+  # service order
+  order:
+    # menggunakan image dari Docker Hub
+    image: hendrax76/order-service:latest
+    # melakukan port mapping agar dapat diakses dari port 3000 di host
+    ports:
+        - 3000:3000
+    # hanya berjalan setelah rabbitmq diluncurkan
+    depends_on:
+      - "rabbitmq"
+    # menunggu service rabbitmq aktif
+    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node index.js'
+    # mensetting environment variable
+    environment:
+      NODE_ENV: production
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+    # memakai network rabbitmq_network
+    networks:
+      - rabbitmq_network
+
+  # service shipping
+  shipping:
+    # menggunakan image dari Docker Hub
+    image: hendrax76/shipping-service:latest
+    # hanya berjalan setelah rabbitmq diluncurkan
+    depends_on:
+      - "rabbitmq"
+    # menunggu service rabbitmq aktif
+    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node index.js'
+    # mensetting environment variable
+    environment:
+      NODE_ENV: production
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+    # memakai network rabbitmq_network
+    networks:
+      - rabbitmq_network
+
+# membuat volume
+volumes:
+   rabbitmq_data:
+   rabbitmq_log:
+
+# membuat network rabbitmq_network
+networks:
+  rabbitmq_network:
+    driver: bridge
