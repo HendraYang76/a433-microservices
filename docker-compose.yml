@@ -15,8 +15,8 @@ services:
         - 15673:15672
     # memakai volume
     volumes:
-        - rabbitmq_data/:/var/lib/rabbitmq/
-        - rabbitmq_log/:/var/log/rabbitmq/
+        - rabbitmq_data:/var/lib/rabbitmq
+        - rabbitmq_log:/var/log/rabbitmq
     # memakai network rabbitmq_network
     networks:
         - rabbitmq_network
